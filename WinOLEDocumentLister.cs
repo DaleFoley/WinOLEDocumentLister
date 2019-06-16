@@ -15,6 +15,8 @@ namespace WinOLEDocumentLister
         private static MCDFWrapper.MCDFWrapper _mcdfWrapper;
         private static Stopwatch _stopwatch;
 
+        private static bool _isWriteFilesToSeparateDirectoriesBasedOnEncoding;
+
         private const string rootEntry = "Root Entry";
         private const string defaultSearchPattern = "*";
 
@@ -34,9 +36,14 @@ namespace WinOLEDocumentLister
                 string pathFileOrDirectoryToBeProcessed = args[0];
 
                 string searchPatternForDirectory = null;
-                if (argumentLength == 2)
+                if (argumentLength >= 2)
                 {
                     searchPatternForDirectory = args[1];
+                }
+
+                if(argumentLength >= 3)
+                {                    
+                    Boolean.TryParse(args[2], out _isWriteFilesToSeparateDirectoriesBasedOnEncoding);
                 }
 
                 Console.WriteLine("Starting to process OLE documents.");
@@ -121,8 +128,8 @@ namespace WinOLEDocumentLister
                 Console.WriteLine("------Begin Stream Write------ [" + stream + "]");
                 Console.WriteLine("Writing stream [" + stream + "] to file [" + pathStreamFile + "]");
 
-                string streamData = _mcdfWrapper.GetStreamData(stream, MCDFWrapper.EncodingType.ASCII);
-                File.WriteAllText(pathStreamFile, streamData);
+                byte[] streamDataByte = _mcdfWrapper.GetStreamByteData(stream);
+                File.WriteAllBytes(pathStreamFile, streamDataByte);
 
                 Console.WriteLine("Finished writing stream [" + stream + "] to file [" + pathStreamFile + "]");
                 Console.WriteLine("------End Stream Write------ [" + stream + "]");
